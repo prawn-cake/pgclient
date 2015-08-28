@@ -1,2 +1,9 @@
 psycopg2==2.6.1
-six
+
+# Python 2 to 3 compatibility
+six==1.9.0
+
+# System packages
+coverage==3.7.1
+bumpversion==0.5.3
+mock

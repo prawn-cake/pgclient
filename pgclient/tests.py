@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
 import unittest
+from pgclient.client import DatabaseManager
 
 
 class DatabaseManagerTest(unittest.TestCase):
     def setUp(self):
-        pass
+        self.db_manager = DatabaseManager(dsn='localhost')
 
     def tearDown(self):
         pass
 
     def test_connection(self):
-        pass
+        conn = self.db_manager.connection
+        self.assertTrue(conn)
 
     def test_cursor(self):
-        pass
+        with self.db_manager.cursor as cursor:
+            result = cursor.execute('SELECT * FROM').fetchall()
+        self.assertTrue(result)
 
     def test_dict_cursor(self):
-        pass
-
-    def test_get_transaction_cursor_context_manager(self):
-        pass
+        with self.db_manager.dict_cursor as cursor:
+            result = cursor.execute('SELECT * FROM').fetchall()
+        self.assertTrue(result)
