@@ -1,8 +1,11 @@
 # System variables
 ENV_DIR=$(CURDIR)/.env
 PYTHON=$(ENV_DIR)/bin/python
+NOSE=$(ENV_DIR)/bin/nosetests
 COVERAGE=$(ENV_DIR)/bin/coverage
 PROJECT_NAME=pgclient
+CODE_DIR=$(CURDIR)/$(PROJECT_NAME)
+
 
 help:
 # target: help - Display callable targets
@@ -21,16 +24,20 @@ pypi_upload:
 
 .PHONY: test
 test: env
-# target: test - Run tests
-	@$(PYTHON) -m unittest discover
+	@$(NOSE) $(CODE_DIR)/tests.py
+
+.PHONY: system_test
+system_test: env
+# target: test - Run system_test
+	@$(NOSE) system_test.py
 	
 
 .PHONY: test_ci
 test_ci: env
 # target: test_ci - Run tests command adapt for CI systems
-	@$(PYTHON) -m unittest discover
+	@$(NOSE) $(CODE_DIR)/tests.py
 
 .PHONY: test_coverage
 # target: test_coverage - Run tests with coverage
 test_coverage: env
-	@$(COVERAGE) run --source=$(PROJECT_NAME) $(PYTHON) -m unittest discover
+	@$(COVERAGE) run --source=$(PROJECT_NAME) $(NOSE) $(CODE_DIR)/tests.py

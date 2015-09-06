@@ -1,0 +1,6 @@
+system_test:
+  build: system_test
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: test
