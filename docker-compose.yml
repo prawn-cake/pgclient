@@ -1,6 +1,7 @@
-system_test:
-  build: system_test
+postgresql:
+  build: pgclient/system_test
   ports:
-    - "5432:5432"
+    - "0.0.0.0:5432:5432"
   environment:
     POSTGRES_PASSWORD: test
+    PSQL_ENTRYPOINT: /docker-entrypoint-initdb.d
