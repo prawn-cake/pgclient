@@ -1,10 +1,22 @@
 language: python
+
 python:
   - 2.7
+
+services:
+  - docker
+
+before_install:
+  - docker build -t pgclient/system_test pgclient/system_test
+  - docker run -d -p "0.0.0.0:5432:5432" pgclient/system_test -e "POSTGRES_PASSWORD=test" -e "PSQL_ENTRYPOINT=/docker-entrypoint-initdb.d"
+  - docker ps -a
+
 install:
   - pip install -r requirements.txt
   - pip install coveralls
+
 script:
-  - make test_ci
+  - make system_test
+
 after_success:
   coveralls
