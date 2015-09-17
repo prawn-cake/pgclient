@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
-import psycopg2
-import psycopg2.extras as pg_extras
-import abc
-import six
 from contextlib import contextmanager
 
+import psycopg2
+import psycopg2.pool as pgpool
+import psycopg2.extras as pg_extras
 
-# TODO: use connection pool by default
-# TODO: add transactional contextmanager
 
-
-class DatabaseManager(object):
-    def __init__(self, dsn, pool_size=1):
+class PostgresClient(object):
+    def __init__(self, dsn=None, database=None, user=None, password=None,
+                 host=None, port=None, pool_size=1):
         self.dsn = dsn
-        self._conn = None
-        self.pool_size = pool_size
+
+        # Pass connection params as is
+        conn_params = dict(dsn=dsn, database=database, user=user,
+                           password=password, host=host, port=port)
+        if pool_size < 1:
+            raise ValueError('Wrong pool_size value. Must be >= 1. '
+                             'Current: {}'.format(pool_size))
+        # Init thread-safe connection pool
+        self._pool = pgpool.ThreadedConnectionPool(
+            minconn=1, maxconn=pool_size, **conn_params)
 
     @property
     def connection(self):
@@ -22,67 +27,44 @@ class DatabaseManager(object):
 
         :return: postgresql connection instance
         """
-        if self._conn is None:
-            self._conn = self._get_connection()
-        return self._conn
+        return self._pool.getconn()
+
+    @contextmanager
+    def _get_cursor(self, cursor_factory=None):
+        conn = self.connection
+        try:
+            yield conn.cursor(cursor_factory=cursor_factory)
+            conn.commit()
+        except psycopg2.DatabaseError as err:
+            conn.rollback()
+            raise psycopg2.DatabaseError(err.message)
+        finally:
+            self._pool.putconn(conn)
 
     @property
     def cursor(self):
-        return self.connection.cursor()
+        """Default index based cursor"""
+
+        return self._get_cursor()
 
     @property
     def dict_cursor(self):
-        """Return dict cursor. It enables accessing via column names instead
-        of indexes
+        """Return dict cursor. It enables to get fields access via column names
+        instead of indexes.
         """
-        return self.connection.cursor(cursor_factory=pg_extras.DictCursor)
+        return self._get_cursor(cursor_factory=pg_extras.DictCursor)
 
-    def _get_connection(self):
-        return psycopg2.connect(dsn=self.dsn)
-
-    @contextmanager
-    def get_transaction_cursor(self):
-        """Public transaction context manager. Useful for getting transactional
-         cursor to be able execute several SQL requests in one transaction
-
-        Example:
-            with db_manager.get_transaction_cursor() as t_cursor:
-                t_cursor.execute('SELECT * FROM ...')
-                t_cursor.execute('INSERT INTO my_table VALUES ...')
-
-        So, the code above will be executed within one transaction
-
+    @property
+    def nt_cursor(self):
+        """Named tuple based cursor. It enables to get attributes access via
+        attributes.
         """
-        with self.connection as conn:
-            with conn.cursor() as t_cursor:
-                yield t_cursor
+        return self._get_cursor(cursor_factory=pg_extras.NamedTupleCursor)
 
+    @property
+    def available_connections(self):
+        """Connection pool available connections
 
-@six.add_metaclass(abc.ABCMeta)
-class QuerySet(object):
-    def __init__(self):
-        self.request_tokens = []
-
-    def execute(self, cursor):
-        return cursor.execute(' '.join(self.request_tokens))
-
-
-class SelectRequest(QuerySet):
-    """The idea is use builder to select to database:
-    select('*').from('my_table').where('a>b').order_by('desc').
-    """
-    def __init__(self):
-        super(SelectRequest, self).__init__()
-
-    def select(self, fields=None):
-        self.request_tokens.append(fields or '*')
-        return self
-
-    def _from(self, table_name):
-        self.request_tokens.append(table_name)
-        return self
-
-    def where(self, raw_condition=None):
-        if raw_condition is not None:
-            self.request_tokens.append(raw_condition)
-        return self
+        :return: int: number of available connections
+        """
+        return len(self._pool._pool)
