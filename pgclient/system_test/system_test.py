@@ -2,6 +2,7 @@
 """Integration system test for database manager"""
 
 import sys
+import os
 import os.path as op
 import psycopg2
 
@@ -21,7 +22,7 @@ class PostgresClientSystemTest(unittest.TestCase):
     DB_USER = 'postgres'
     DB_PASSWORD = 'test'
     DB_NAME = 'test'
-    DB_PORT = 15432
+    DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
     TABLE_NAME = 'users'
 
     def setUp(self):
