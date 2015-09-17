@@ -6,7 +6,7 @@ import psycopg2.pool as pgpool
 import psycopg2.extras as pg_extras
 
 
-class DatabaseManager(object):
+class PostgresClient(object):
     def __init__(self, dsn=None, database=None, user=None, password=None,
                  host=None, port=None, pool_size=1):
         self.dsn = dsn
@@ -43,22 +43,28 @@ class DatabaseManager(object):
 
     @property
     def cursor(self):
+        """Default index based cursor"""
+
         return self._get_cursor()
 
     @property
     def dict_cursor(self):
-        """Return dict cursor. It enables accessing via column names instead
-        of indexes
+        """Return dict cursor. It enables to get fields access via column names
+        instead of indexes.
         """
         return self._get_cursor(cursor_factory=pg_extras.DictCursor)
 
     @property
     def nt_cursor(self):
-        """Named tuple based cursor. It enables to accessing via attributes
-
+        """Named tuple based cursor. It enables to get attributes access via
+        attributes.
         """
         return self._get_cursor(cursor_factory=pg_extras.NamedTupleCursor)
 
     @property
     def available_connections(self):
+        """Connection pool available connections
+
+        :return: int: number of available connections
+        """
         return len(self._pool._pool)

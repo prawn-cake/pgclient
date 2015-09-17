@@ -8,18 +8,18 @@ The client is fully based on thread-safe connections pool and safe transactions 
 
 Quick start
 ===========
-Main class to operate with database is a `DatabaseManager`
+Main class to operate with database is a `PostgresClient`
 
 
 Initialization
 --------------
     
-    from pgclient.client import DatabaseManager
+    from pgclient.client import PostgresClient
     
     
-    db_manager = DatabaseManager(dsn='{dsn_string}')
+    pg_client = PostgresClient(dsn='{dsn_string}')
     # OR
-    db_manager = DatabaseManager(username='test', password='test', ...)
+    pg_client = PostgresClient(username='test', password='test', ...)
 
 Database raw request
 --------------------
@@ -33,27 +33,28 @@ Assume that test data schema is the following:
 
 Result set index based access
 
-    with self.db_manager.cursor as cursor:
+    with self.pg_client.cursor as cursor:
         cursor.execute('SELECT * FROM users')
-        users = cursor.fetchall()
-    
+
+    users = cursor.fetchall()
     username = users[0][0]  # (OR users[0][1])     
     
     
 **Dict cursor**
     
-    with self.db_manager.dict_cursor as cursor:
+    with self.pg_client.dict_cursor as cursor:
         cursor.execute('SELECT * FROM users')
-        users = cursor.fetchall()
+
+    users = cursor.fetchall()
     user = users[0]
     print(user['name'])
         
         
 **Named-tuple cursor**
 
-    with self.db_manager.nt_cursor as cursor:
+    with self.pg_client.nt_cursor as cursor:
         cursor.execute('SELECT * FROM users')
-        result = cursor.fetchall()
+    result = cursor.fetchall()
     
     user = users[0]
     print(user.name)
@@ -64,12 +65,12 @@ Safe transactions
 
 All requests inside `with` context will be executed and automatically committed within one transaction
     
-    with self.db_manager.cursor as transaction:
+    with self.pg_client.cursor as transaction:
         transaction.execute('INSERT INTO users VALUES name="Mark"')
         transaction.execute('INSERT INTO users VALUES name="Paolo"')
         transaction.execute('SELECT * FROM users')
 
-        users = transaction.fetchall()
+    users = transaction.fetchall()
     
 
 Installation

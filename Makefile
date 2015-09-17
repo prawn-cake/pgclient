@@ -24,7 +24,7 @@ pypi_upload:
 
 .PHONY: test
 test: env
-	@$(NOSE) $(CODE_DIR)/tests.py
+	@$(NOSE) $(CODE_DIR)/tests
 
 .PHONY: system_test
 system_test: env
@@ -35,7 +35,7 @@ system_test: env
 .PHONY: test_ci
 test_ci: env
 # target: test_ci - Run tests command adapt for CI systems
-	@$(NOSE) $(CODE_DIR)/tests.py
+	@$(NOSE) $(CODE_DIR)/tests
 
 .PHONY: test_coverage
 # target: test_coverage - Run tests with coverage
