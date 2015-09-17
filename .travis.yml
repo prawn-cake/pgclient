@@ -8,13 +8,19 @@ python:
 services:
   - docker
 
+env:
+  - POSTGRES_PORT=15432
+
 before_install:
-  - sudo apt-get install -y python-dev libpq-dev
+  - sudo apt-get update
+  - sudo apt-get install -y python-dev libpq-dev lxc-docker
   - docker build -t pgclient/system_test pgclient/system_test
   - sudo service docker restart ; sleep 10
-  - docker run -d -p "0.0.0.0:15432:5432" -e POSTGRES_PORT=15432 -e POSTGRES_PASSWORD=test pgclient/system_test
-  - sleep 5
+  - docker run --name pgclient_system_test --privileged -d -p "0.0.0.0:15432:5432" -e POSTGRES_PASSWORD=test pgclient/system_test
+  - sleep 20
   - docker ps -a
+  - docker logs pgclient_system_test
+  - sudo netstat -ntlp
 
 install:
   - pip install -r requirements.txt

@@ -8,18 +8,18 @@ The client is fully based on thread-safe connections pool and safe transactions 
 
 Quick start
 ===========
-Main class to operate with database is a `PostgresClient`
-
-
-Initialization
---------------
     
     from pgclient.client import PostgresClient
     
     
-    pg_client = PostgresClient(dsn='{dsn_string}')
+    pg_client = PostgresClient(dsn='user=admin password=admin dbname=test host=localhost port=5432')
     # OR
     pg_client = PostgresClient(username='test', password='test', ...)
+    
+    with self.pg_client.cursor as cursor:
+        cursor.execute('SELECT * FROM MyTable')
+        
+    result_set = cursor.fetchall()
 
 Database raw request
 --------------------
