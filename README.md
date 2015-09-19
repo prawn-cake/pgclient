@@ -1,4 +1,4 @@
-pgclient
+![pgclientIcon](https://www.dropbox.com/s/4l91lo7kt5xor4w/elephant_64.png?dl=1) pgclient
 =============
 
 pgclient - yet another pool-based psycopg2 wrapper. 
@@ -8,7 +8,20 @@ The client is fully based on thread-safe connections pool and safe transactions 
 
 Quick start
 ===========
+
+### System dependencies: ###
+
+* python-dev
+* libpq-dev
+ 
+
+### Install the package ###
     
+    pip install pgclient
+
+
+### Initialize the client ###
+
     from pgclient.client import PostgresClient
     
     
@@ -21,13 +34,16 @@ Quick start
         
     result_set = cursor.fetchall()
 
-Database raw request
+Database requests
 --------------------
     
-Assume that test data schema is the following:
+**SQL Schema:**
+    
+    CREATE TABLE users (
+        id SERIAL, 
+        username VARCHAR NOT NULL 
+    )
 
-* TABLE:    users
-* SCHEMA:   name: VARCHAR, id: INTEGER
     
 **Basic cursor**
 
@@ -72,22 +88,6 @@ All requests inside `with` context will be executed and automatically committed 
 
     users = transaction.fetchall()
     
-
-Installation
-============
-System dependencies
--------------------
-
-Install the following dependencies via `.deb` or `.rpm` packages
-
-* python-dev
-* libpq-dev
-
-Install package
----------------
-
-    pip install pgclient
-
 
 System test
 ===========
