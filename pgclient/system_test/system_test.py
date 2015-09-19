@@ -115,7 +115,7 @@ class PostgresClientSystemTest(unittest.TestCase):
                         self.TABLE_NAME),
                     (None, ))
                 print('abc')
-        self.assertIn('null value in column', err.exception.message)
+        self.assertIn('null value in column', str(err.exception))
         print('transaction finished')
 
     def test_connection_pool_overflow(self):

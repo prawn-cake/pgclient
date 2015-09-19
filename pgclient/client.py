@@ -51,7 +51,7 @@ class PostgresClient(object):
             conn.commit()
         except psycopg2.DatabaseError as err:
             conn.rollback()
-            raise psycopg2.DatabaseError(err.message)
+            raise psycopg2.DatabaseError(str(err))
         finally:
             self.release_conn(conn)
 
