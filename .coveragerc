@@ -9,7 +9,6 @@ exclude_lines =
 
     # Don't complain about missing debug-only code:
     def __repr__
-    def __unicode__
     if self\.debug
 
     # Don't complain if tests don't hit defensive assertion code:
@@ -23,7 +22,7 @@ exclude_lines =
 include =
     pgclient/*
 omit =
-    pgclient/tests.py
+    pgclient/system_test/*
 
 ignore_errors = True
 

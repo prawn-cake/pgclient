@@ -12,8 +12,12 @@ class PostgresClient(object):
         self.dsn = dsn
 
         # Pass connection params as is
-        conn_params = dict(dsn=dsn, database=database, user=user,
-                           password=password, host=host, port=port)
+        conn_params = dict(dsn=dsn,
+                           database=database,
+                           user=user,
+                           password=password,
+                           host=host,
+                           port=port)
         if pool_size < 1:
             raise ValueError('Wrong pool_size value. Must be >= 1. '
                              'Current: {}'.format(pool_size))
@@ -21,13 +25,19 @@ class PostgresClient(object):
         self._pool = pgpool.ThreadedConnectionPool(
             minconn=1, maxconn=pool_size, **conn_params)
 
-    @property
-    def _connection(self):
-        """Acquire pool connection property
+    def acquire_conn(self):
+        """Get new pool connection
 
-        :return: postgresql connection instance
+        :return: psycopg2 connection object
         """
         return self._pool.getconn()
+
+    def release_conn(self, conn):
+        """Release connection to a pool
+
+        :param conn: psycopg2 connection object
+        """
+        self._pool.putconn(conn)
 
     @contextmanager
     def _get_cursor(self, cursor_factory=None):
@@ -35,7 +45,7 @@ class PostgresClient(object):
 
         :param cursor_factory: pg_extras.* cursor factory class
         """
-        conn = self._connection
+        conn = self.acquire_conn()
         try:
             yield conn.cursor(cursor_factory=cursor_factory)
             conn.commit()
@@ -43,7 +53,7 @@ class PostgresClient(object):
             conn.rollback()
             raise psycopg2.DatabaseError(err.message)
         finally:
-            self._pool.putconn(conn)
+            self.release_conn(conn)
 
     @property
     def cursor(self):
