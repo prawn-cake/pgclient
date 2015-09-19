@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='pgclient',
-    version='0.1.0',
+    version='0.1.1',
     packages=['pgclient'],
     url='https://github.com/prawn-cake/pgclient',
     license='MIT',
