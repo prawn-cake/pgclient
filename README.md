@@ -2,7 +2,7 @@
 ========================================================================================
 [![Build Status](https://travis-ci.org/prawn-cake/pgclient.svg?branch=master)](https://travis-ci.org/prawn-cake/pgclient)
 [![Coverage Status](https://coveralls.io/repos/prawn-cake/pgclient/badge.svg?branch=master&service=github)](https://coveralls.io/github/prawn-cake/pgclient?branch=master)
-
+![PythonVersions](https://www.dropbox.com/s/ck0nc28ttga2pw9/python-2.7_3.4-blue.svg?dl=1)
 
 pgclient - yet another pool-based python2/3 compatible psycopg2 wrapper. 
 
