@@ -84,7 +84,8 @@ Result set index based access
 Safe transactions
 -----------------
 
-All requests inside `with` context will be executed and automatically committed within one transaction
+All requests inside `with` context will be executed and automatically committed within one transaction 
+(or rollbacked in case if database errors)
     
     with self.pg_client.cursor as transaction:
         transaction.execute('INSERT INTO users VALUES name="Mark"')
