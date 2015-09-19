@@ -22,8 +22,8 @@ class PostgresClient(object):
             minconn=1, maxconn=pool_size, **conn_params)
 
     @property
-    def connection(self):
-        """Lazy connection property
+    def _connection(self):
+        """Acquire pool connection property
 
         :return: postgresql connection instance
         """
@@ -31,7 +31,11 @@ class PostgresClient(object):
 
     @contextmanager
     def _get_cursor(self, cursor_factory=None):
-        conn = self.connection
+        """Get connection cursor context manager
+
+        :param cursor_factory: pg_extras.* cursor factory class
+        """
+        conn = self._connection
         try:
             yield conn.cursor(cursor_factory=cursor_factory)
             conn.commit()

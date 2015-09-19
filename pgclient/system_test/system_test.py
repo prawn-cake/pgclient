@@ -2,6 +2,7 @@
 """Integration system test for database manager"""
 
 import sys
+import os
 import os.path as op
 import psycopg2
 
@@ -21,11 +22,12 @@ class PostgresClientSystemTest(unittest.TestCase):
     DB_USER = 'postgres'
     DB_PASSWORD = 'test'
     DB_NAME = 'test'
+    DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
     TABLE_NAME = 'users'
 
     def setUp(self):
-        dsn = 'user={} password={} dbname={} host=localhost'.format(
-            self.DB_USER, self.DB_PASSWORD, self.DB_NAME)
+        dsn = 'user={} password={} dbname={} host=localhost port={}'.format(
+            self.DB_USER, self.DB_PASSWORD, self.DB_NAME, self.DB_PORT)
         try:
             self.pg_client = PostgresClient(dsn=dsn, pool_size=10)
         except psycopg2.OperationalError as err:

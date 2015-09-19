@@ -29,7 +29,7 @@ test: env
 .PHONY: system_test
 system_test: env
 # target: test - Run system_test
-	@$(NOSE) system_test.py
+	@$(NOSE) $(CODE_DIR)/system_test/system_test.py
 	
 
 .PHONY: test_ci

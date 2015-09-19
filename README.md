@@ -1,5 +1,8 @@
-pgclient
-=============
+![pgclientIcon](https://www.dropbox.com/s/4l91lo7kt5xor4w/elephant_64.png?dl=1) pgclient
+========================================================================================
+[![Build Status](https://travis-ci.org/prawn-cake/pgclient.svg?branch=master)](https://travis-ci.org/prawn-cake/pgclient)
+[![Coverage Status](https://coveralls.io/repos/prawn-cake/pgclient/badge.svg?branch=master&service=github)](https://coveralls.io/github/prawn-cake/pgclient?branch=master)
+
 
 pgclient - yet another pool-based psycopg2 wrapper. 
 
@@ -8,26 +11,42 @@ The client is fully based on thread-safe connections pool and safe transactions 
 
 Quick start
 ===========
-Main class to operate with database is a `PostgresClient`
 
+### System dependencies: ###
 
-Initialization
---------------
+* python-dev
+* libpq-dev
+ 
+
+### Install the package ###
     
+    pip install pgclient
+
+
+### Initialize the client ###
+
     from pgclient.client import PostgresClient
     
     
-    pg_client = PostgresClient(dsn='{dsn_string}')
+    pg_client = PostgresClient(dsn='user=admin password=admin dbname=test host=localhost port=5432')
     # OR
     pg_client = PostgresClient(username='test', password='test', ...)
+    
+    with self.pg_client.cursor as cursor:
+        cursor.execute('SELECT * FROM MyTable')
+        
+    result_set = cursor.fetchall()
 
-Database raw request
+Database requests
 --------------------
     
-Assume that test data schema is the following:
+**SQL Schema:**
+    
+    CREATE TABLE users (
+        id SERIAL, 
+        username VARCHAR NOT NULL 
+    )
 
-* TABLE:    users
-* SCHEMA:   name: VARCHAR, id: INTEGER
     
 **Basic cursor**
 
@@ -72,22 +91,6 @@ All requests inside `with` context will be executed and automatically committed 
 
     users = transaction.fetchall()
     
-
-Installation
-============
-System dependencies
--------------------
-
-Install the following dependencies via `.deb` or `.rpm` packages
-
-* python-dev
-* libpq-dev
-
-Install package
----------------
-
-    pip install pgclient
-
 
 System test
 ===========
