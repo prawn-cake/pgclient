@@ -5,6 +5,7 @@ import sys
 import os
 import os.path as op
 import psycopg2
+from psycopg2.pool import PoolError
 
 sys.path.append(
     op.abspath(op.dirname(__file__)) + '/../'
@@ -24,12 +25,14 @@ class PostgresClientSystemTest(unittest.TestCase):
     DB_NAME = 'test'
     DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
     TABLE_NAME = 'users'
+    POOL_SIZE = 3
 
     def setUp(self):
-        dsn = 'user={} password={} dbname={} host=localhost port={}'.format(
-            self.DB_USER, self.DB_PASSWORD, self.DB_NAME, self.DB_PORT)
+        self.dsn = 'user={} password={} dbname={} host=localhost port={}'\
+            .format(self.DB_USER, self.DB_PASSWORD, self.DB_NAME, self.DB_PORT)
         try:
-            self.pg_client = PostgresClient(dsn=dsn, pool_size=10)
+            self.pg_client = PostgresClient(dsn=self.dsn,
+                                            pool_size=self.POOL_SIZE)
         except psycopg2.OperationalError as err:
             print('Check that postgres docker container is started. '
                   'Check README for more information')
@@ -65,6 +68,12 @@ class PostgresClientSystemTest(unittest.TestCase):
     def tearDown(self):
         self._drop_table()
 
+    def test_create_with_wrong_pool_value(self):
+        with self.assertRaises(ValueError) as err:
+            pg_client = PostgresClient(dsn=self.dsn, pool_size=0)
+            self.assertIsNone(pg_client)
+            self.assertIn('Wrong pool_size value', err)
+
     def test_cursor(self):
         with self.pg_client.cursor as cursor:
             cursor.execute('SELECT * FROM users')
@@ -98,10 +107,28 @@ class PostgresClientSystemTest(unittest.TestCase):
         self.assertEqual(len(result_set), 101)
 
     def test_rollback_transaction(self):
-        # Insert null username must cause an error
-        with self.pg_client.cursor as transaction:
-            with self.assertRaises(psycopg2.DatabaseError) as err:
+        # Inserting null username value must raise an error
+        with self.assertRaises(psycopg2.DatabaseError) as err:
+            with self.pg_client.cursor as transaction:
                 transaction.execute(
-                    "INSERT INTO {} (username) VALUES (%s)".format(self.TABLE_NAME),
+                    "INSERT INTO {} (username) VALUES (%s)".format(
+                        self.TABLE_NAME),
                     (None, ))
-            self.assertIn('null value in column', err.exception.message)
+                print('abc')
+        self.assertIn('null value in column', err.exception.message)
+        print('transaction finished')
+
+    def test_connection_pool_overflow(self):
+        # Consume all connection to check overflow case
+        connections = []
+        for i in range(self.POOL_SIZE):
+            connections.append(self.pg_client.acquire_conn())
+
+        with self.assertRaises(PoolError) as err:
+            with self.pg_client.cursor as cursor:
+                self.assertIsNone(cursor)
+                self.assertIn('connection pool exhausted', err)
+
+        # Release all connections back to pool
+        for conn in connections:
+            self.pg_client.release_conn(conn)
