@@ -4,9 +4,11 @@
 [![Coverage Status](https://coveralls.io/repos/prawn-cake/pgclient/badge.svg?branch=master&service=github)](https://coveralls.io/github/prawn-cake/pgclient?branch=master)
 
 
-pgclient - yet another pool-based psycopg2 wrapper. 
+pgclient - yet another pool-based python2/3 compatible psycopg2 wrapper. 
 
 The client is fully based on thread-safe connections pool and safe transactions executing
+
+*Tested on python2.7+, python3.4+*
 
 
 Quick start
