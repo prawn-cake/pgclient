@@ -1,5 +1,8 @@
 ![pgclientIcon](https://www.dropbox.com/s/4l91lo7kt5xor4w/elephant_64.png?dl=1) pgclient
-=============
+========================================================================================
+[![Build Status](https://travis-ci.org/prawn-cake/pgclient.svg?branch=master)](https://travis-ci.org/prawn-cake/pgclient)
+[![Coverage Status](https://coveralls.io/repos/prawn-cake/pgclient/badge.svg?branch=master&service=github)](https://coveralls.io/github/prawn-cake/pgclient?branch=master)
+
 
 pgclient - yet another pool-based psycopg2 wrapper. 
 
