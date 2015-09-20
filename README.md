@@ -75,8 +75,8 @@ Result set index based access
 
     with self.pg_client.nt_cursor as cursor:
         cursor.execute('SELECT * FROM users')
-    result = cursor.fetchall()
-    
+
+    users = cursor.fetchall()
     user = users[0]
     print(user.name)
 
