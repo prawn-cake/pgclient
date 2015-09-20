@@ -6,6 +6,9 @@ import psycopg2.pool as pgpool
 import psycopg2.extras as pg_extras
 
 
+__all__ = ['PostgresClient']
+
+
 class PostgresClient(object):
     def __init__(self, dsn=None, database=None, user=None, password=None,
                  host=None, port=None, pool_size=1):
@@ -29,11 +32,14 @@ class PostgresClient(object):
         """Get new pool connection
 
         :return: psycopg2 connection object
+        :raise: psycopg2.pool.PoolError: when is no available connections
         """
         return self._pool.getconn()
 
     def release_conn(self, conn):
         """Release connection to a pool
+        Connection will be returned into the pool in a consistent state
+        (idle transaction will be rolled back, unknown - closed)
 
         :param conn: psycopg2 connection object
         """

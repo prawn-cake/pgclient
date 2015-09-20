@@ -1,8 +1,5 @@
 postgresql_common:
-  build: pgclient/system_test
+  build: ../pgclient/system_test
   environment:
     POSTGRES_PASSWORD: test # Set password for default (postgres) user
     PGPASSWORD: test        # For using `psql -c ...` without password
-
-  # Override
-  command: echo "CREATE DATABASE test WITH OWNER postgres;" >> /docker-entrypoint-initdb.d/create_db.sql && /docker-entrypoint.sh
