@@ -1,6 +1,32 @@
+# Latest one
 postgresql:
-  build: pgclient/system_test
   ports:
     - "0.0.0.0:5432:5432"
-  environment:
-    POSTGRES_PASSWORD: test
+  extends:
+    file: compose/common.yml
+    service: postgresql_common
+
+# Older verions
+postgresql_90:
+  image: postgres:9.0
+  ports:
+    - "0.0.0.0:54390:5432"
+  extends:
+    file: compose/common.yml
+    service: postgresql_common
+
+postgresql_91:
+  image: postgres:9.1
+  ports:
+    - "0.0.0.0:54391:5432"
+  extends:
+    file: compose/common.yml
+    service: postgresql_common
+
+postgresql_92:
+  image: postgres:9.2
+  ports:
+    - "0.0.0.0:54392:5432"
+  extends:
+    file: compose/common.yml
+    service: postgresql_common
