@@ -6,7 +6,7 @@
 
 pgclient - yet another pool-based python2/3 compatible psycopg2 wrapper. 
 
-The client is fully based on thread-safe connections pool and safe transactions executing
+The client is fully based on thread-safe reliable connections pool and safe transactions executing
 
 *Tested on python2.7+, python3.4+*
 
