@@ -134,6 +134,16 @@ class PostgresClientSystemTest(unittest.TestCase):
         for conn in connections:
             self.pg_client.release_conn(conn)
 
+    def test_check_connection_aliveness(self):
+        available_conn = self.pg_client.available_connections
+        conn = self.pg_client.acquire_conn()
+        conn.close()
+        conn = self.pg_client._check_connection(conn)
+        self.assertTrue(conn)
+        conn.cursor().execute('SELECT 1')
+        self.pg_client.release_conn(conn)
+        self.assertEqual(available_conn, self.pg_client.available_connections)
+
     @unittest.skip('docker container is not prepared for this')
     def test_reconnection(self):
         """This test should be long.

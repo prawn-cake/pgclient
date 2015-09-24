@@ -76,14 +76,15 @@ class PostgresClient(object):
             conn = self._check_connection(conn=conn)
         return conn
 
-    def release_conn(self, conn):
+    def release_conn(self, conn, close=False):
         """Release connection to a pool
         Connection will be returned into the pool in a consistent state
         (idle transaction will be rolled back, unknown - closed)
 
+        :param close: enforce to close connection parameter
         :param conn: psycopg2 connection object
         """
-        self._pool.putconn(conn)
+        self._pool.putconn(conn, close=close)
 
     def _check_connection(self, conn):
         """Check connection aliveness and reconnect in case of errors
@@ -96,7 +97,7 @@ class PostgresClient(object):
             try:
                 # Check if connection is alive
                 conn.cursor().execute('SELECT 1')
-            except psycopg2.DatabaseError:
+            except psycopg2.Error:
                 # The connection is not working, need reconnect
                 self._pool.putconn(conn=conn, close=True)
                 time.sleep(1)
