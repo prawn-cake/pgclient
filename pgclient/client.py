@@ -30,17 +30,12 @@ class ReliableThreadConnectionPool(pgpool.ThreadedConnectionPool):
         conn = None
         while conn is None:
             try:
-                conn = psycopg2.connect(*self._args, **self._kwargs)
+                conn = super(ReliableThreadConnectionPool, self)._connect(
+                    key=key)
             except psycopg2.DatabaseError as err:
                 logger.warning(str(err))
                 logger.info('Reconnecting')
                 time.sleep(1)
-        else:
-            if key is not None:
-                self._used[key] = conn
-                self._rused[id(conn)] = key
-            else:
-                self._pool.append(conn)
         return conn
 
 
