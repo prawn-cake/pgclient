@@ -15,7 +15,7 @@ sys.path.append(
 import unittest
 import random
 from pgclient.client import PostgresClient
-
+from pgclient import exceptions as pg_client_exc
 
 NAMES = ['Alex', 'Andrea', 'Ashley', 'Casey', 'Chris', 'Dorian', 'Jerry']
 
@@ -41,7 +41,7 @@ class PostgresClientSystemTest(unittest.TestCase):
 
         try:
             self._create_table()
-        except psycopg2.DatabaseError:
+        except (psycopg2.Error, pg_client_exc.PgClientError):
             self._drop_table()
             self._create_table()
 
@@ -109,14 +109,14 @@ class PostgresClientSystemTest(unittest.TestCase):
 
     def test_rollback_transaction(self):
         # Inserting null username value must raise an error
-        with self.assertRaises(psycopg2.DatabaseError) as err:
+        with self.assertRaises(pg_client_exc.IntegrityConstraintViolation):
             with self.pg_client.cursor as transaction:
                 transaction.execute(
                     "INSERT INTO {} (username) VALUES (%s)".format(
                         self.TABLE_NAME),
                     (None, ))
                 print('abc')
-        self.assertIn('null value in column', str(err.exception))
+        # self.assertIn('null value in column', str(err.exception))
         print('transaction finished')
 
     def test_connection_pool_overflow(self):

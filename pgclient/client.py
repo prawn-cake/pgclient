@@ -7,6 +7,8 @@ import psycopg2.pool as pgpool
 import psycopg2.extras as pg_extras
 import time
 
+from pgclient.exceptions import ErrorsRegistry
+
 
 __all__ = ['PostgresClient']
 
@@ -33,7 +35,8 @@ class ReliableThreadConnectionPool(pgpool.ThreadedConnectionPool):
                 conn = super(ReliableThreadConnectionPool, self)._connect(
                     key=key)
             except psycopg2.DatabaseError as err:
-                logger.warning(str(err))
+                error = ErrorsRegistry.get_error(pg_error=err)
+                logger.warning(str(error))
                 logger.info('Reconnecting')
                 time.sleep(1)
         return conn
@@ -117,7 +120,7 @@ class PostgresClient(object):
             except psycopg2.Error:
                 # connection already closed on rollback
                 pass
-            raise psycopg2.DatabaseError(str(err))
+            raise ErrorsRegistry.get_error(pg_error=err)
         finally:
             self.release_conn(conn)
 

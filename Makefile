@@ -23,7 +23,7 @@ pypi_upload:
 
 .PHONY: test
 test: env
-	@$(NOSE) $(CODE_DIR)/tests
+	@$(NOSE) $(CODE_DIR)/tests.py
 
 .PHONY: system_test
 system_test: env

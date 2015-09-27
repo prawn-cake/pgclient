@@ -31,6 +31,7 @@ install:
   - pip install coveralls
 
 script:
+  - make test
   - make system_test
   # Run tests on postgres:9.0
   - export POSTGRES_PORT=54390
