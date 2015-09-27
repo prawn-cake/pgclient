@@ -94,6 +94,43 @@ All requests inside `with` context will be executed and automatically committed 
 
     users = transaction.fetchall()
     
+    
+Auto-reconnect connection pool
+------------------------------
+So, when you're starting a new transaction, it's guaranteed that connection is alive
+
+    with self.pg_client.cursor as cursor:
+        # connection is alive
+        cursor.execute(...)
+    
+    # Or manually
+    conn = self.pg_client.acquire_conn()
+    conn.execute(...)
+    ...
+    self.pg_client.release_conn(conn)
+    
+    
+Extended errors
+---------------
+
+Instead of basic `psycopg2.Error` based errors, [Extended exception classes](http://www.postgresql.org/docs/current/static/errcodes-appendix.html#ERRCODES-TABLE) have been added.
+So now you will get more meaningful error information in case of any errors during 
+the postgres communication and use error handling in more flexible way.
+
+Example:
+    
+    from pgclient import exceptions as pg_exc
+    
+    try:
+        with self.pg_client.cursor as transaction:
+            transaction.execute(...)
+    except pg_exc.IntegrityConstraintViolation as err:
+        logger.error(err.message, err.diag, err.pgcode)
+    except pg_exc.DataException as err:
+        ...
+    except pg_exc.PgClientError as err:
+        # To catch all errors
+        ...
 
 System test
 ===========
