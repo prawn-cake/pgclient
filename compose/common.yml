@@ -1,0 +1,5 @@
+postgresql_common:
+  build: ../pgclient/system_test
+  environment:
+    POSTGRES_PASSWORD: test # Set password for default (postgres) user
+    PGPASSWORD: test        # For using `psql -c ...` without password

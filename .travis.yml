@@ -15,19 +15,29 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install -y python-dev libpq-dev lxc-docker
   - docker build -t pgclient/system_test pgclient/system_test
+  - docker build -t pgclient/system_test_pg90 -f pgclient/system_test/Dockerfile.pg90 pgclient/system_test
+
   - sudo service docker restart ; sleep 10
+
   - docker run --name pgclient_system_test --privileged -d -p "0.0.0.0:15432:5432" -e POSTGRES_PASSWORD=test pgclient/system_test
+  - docker run --name pgclient_system_test_pg90 --privileged -d -p "0.0.0.0:54390:5432" -e POSTGRES_PASSWORD=test pgclient/system_test_pg90
   - sleep 20
   - docker ps -a
   - docker logs pgclient_system_test
+  - docker logs pgclient_system_test_pg90
   - sudo netstat -ntlp
 
 install:
-  - pip install -r requirements.txt
   - pip install coveralls
 
 script:
+  - make test
+  - make system_test
+  # Run tests on postgres:9.0
+  - export POSTGRES_PORT=54390
   - make system_test
 
 after_success:
-  coveralls
+  - coveralls
+  - docker stop pgclient_system_test pgclient_system_test_pg90
+  - docker rm pgclient_system_test pgclient_system_test_pg90

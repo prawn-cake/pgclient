@@ -6,7 +6,7 @@
 
 pgclient - yet another pool-based python2/3 compatible psycopg2 wrapper. 
 
-The client is fully based on thread-safe connections pool and safe transactions executing
+The client is fully based on thread-safe reliable connections pool and safe transactions executing
 
 *Tested on python2.7+, python3.4+*
 
@@ -85,7 +85,7 @@ Safe transactions
 -----------------
 
 All requests inside `with` context will be executed and automatically committed within one transaction 
-(or rollbacked in case if database errors)
+(or rolled back in case if database errors)
     
     with self.pg_client.cursor as transaction:
         transaction.execute('INSERT INTO users VALUES name="Mark"')
@@ -103,11 +103,16 @@ To run integration test you need to install the following:
 * [Docker compose](https://docs.docker.com/compose/)
 
 
-**Run system tests:**
+**Run system test:**
 
 * Run postgresql container: `docker-compose up  -d postgresql`
 * Run system tests: `make system_test`
 * Stop postgresql container: `docker-compose stop postgresql`
+
+To test with *postgresql:9.0* run `postgresql_90` container with docker compose.
+
+Both versions are being tested with travis ci.
+
 
 
 Bug tracker
