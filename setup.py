@@ -4,6 +4,7 @@ setup(
     name='pgclient',
     version='0.2.0',
     packages=['pgclient'],
+    install_requires=['psycopg2'],
     url='https://github.com/prawn-cake/pgclient',
     license='MIT',
     author='Maksim Ekimovskii',
