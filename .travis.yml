@@ -13,7 +13,7 @@ env:
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get install -y python-dev libpq-dev lxc-docker
+  - sudo apt-get install -y python-dev libpq-dev docker.io
   - docker build -t pgclient/system_test pgclient/system_test
   - docker build -t pgclient/system_test_pg90 -f pgclient/system_test/Dockerfile.pg90 pgclient/system_test
 
