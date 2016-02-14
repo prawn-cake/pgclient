@@ -2,8 +2,9 @@ from distutils.core import setup
 
 setup(
     name='pgclient',
-    version='0.2.0',
+    version='0.2.1',
     packages=['pgclient'],
+    install_requires=['psycopg2'],
     url='https://github.com/prawn-cake/pgclient',
     license='MIT',
     author='Maksim Ekimovskii',

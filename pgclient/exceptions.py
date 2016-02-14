@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import psycopg2
 from psycopg2 import errorcodes as codes
 
 
@@ -45,6 +46,9 @@ class ErrorsRegistry(object):
         :param pg_code: str
         :return:
         """
+        if not pg_code:
+            return psycopg2.Error
+
         return cls.ERRORS.get(pg_code[:2])
 
     @classmethod
