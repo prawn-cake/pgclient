@@ -142,7 +142,7 @@ To run integration test you need to install the following:
 
 **Run system test:**
 
-* Run postgresql container: `docker-compose up  -d postgresql`
+* Run postgresql container: `docker-compose up -d postgresql`
 * Run system tests: `make system_test`
 * Stop postgresql container: `docker-compose stop postgresql`
 
