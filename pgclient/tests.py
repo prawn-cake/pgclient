@@ -23,6 +23,11 @@ class ErrorsRegistryTest(unittest.TestCase):
         self.assertTrue(issubclass(cls, PgClientError))
         self.assertEqual(cls.CLASS_CODE, '42')
 
+    def test_get_error_class_with_none_code(self):
+        pg_code = None
+        cls = registry.get_error_class(pg_code)
+        self.assertEqual(cls, PgClientError)
+
     def test_get_error(self):
         error = mock.MagicMock(spec=psycopg2.Error)
         pg_code = '08006'

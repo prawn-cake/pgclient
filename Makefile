@@ -29,9 +29,3 @@ test: env
 system_test: env
 # target: test - Run system_test
 	@$(NOSE) --with-coverage $(CODE_DIR)/system_test/system_test.py
-	
-
-.PHONY: test_ci
-test_ci: env
-# target: test_ci - Run tests command adapt for CI systems
-	@$(NOSE) --with-coverage $(CODE_DIR)/tests
