@@ -47,7 +47,7 @@ class ErrorsRegistry(object):
         :return:
         """
         if not pg_code:
-            return psycopg2.Error
+            return PgClientError
 
         return cls.ERRORS.get(pg_code[:2])
 
