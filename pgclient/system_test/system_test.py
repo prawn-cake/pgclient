@@ -14,7 +14,7 @@ sys.path.append(
 
 import unittest
 import random
-from pgclient.client import PostgresClient
+from pgclient import PostgresClient
 from pgclient import exceptions as pg_client_exc
 
 NAMES = ['Alex', 'Andrea', 'Ashley', 'Casey', 'Chris', 'Dorian', 'Jerry']
