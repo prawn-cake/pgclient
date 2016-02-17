@@ -12,7 +12,11 @@ from pgclient.exceptions import ErrorsRegistry
 
 __all__ = ['PostgresClient']
 
-logger = logging.getLogger('postgres-client')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s [%(name)s] %(message)s',
+)
+logger = logging.getLogger('pgclient')
 
 
 class ReliableThreadConnectionPool(pgpool.ThreadedConnectionPool):
