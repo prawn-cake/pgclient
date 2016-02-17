@@ -42,7 +42,7 @@ Quick start
 Database requests
 --------------------
     
-**SQL Schema:**
+**Assume that we use the following sql schema:**
     
     CREATE TABLE users (
         id SERIAL, 
@@ -97,7 +97,7 @@ All requests inside `with` context will be executed and automatically committed 
     
 Auto-reconnect connection pool
 ------------------------------
-So, when you're starting a new transaction, it's guaranteed that connection is alive
+Starting a new transaction, it guarantees that connection is alive
 
     with self.pg_client.cursor as cursor:
         # connection is alive
@@ -128,9 +128,15 @@ Example:
         logger.error(err.message, err.diag, err.pgcode)
     except pg_exc.DataException as err:
         ...
+
+To catch all errors:
+    
+    try:
+        with self.pg_client.cursor as transaction:
+            transaction.execute(...)
     except pg_exc.PgClientError as err:
-        # To catch all errors
-        ...
+        logger.error(err)
+        ... 
 
 System test
 ===========
