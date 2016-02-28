@@ -5,6 +5,7 @@ import sys
 import os
 import os.path as op
 import psycopg2
+import psycopg2.extras
 from psycopg2.pool import PoolError
 import time
 
@@ -46,7 +47,7 @@ class PostgresClientSystemTest(unittest.TestCase):
             self._create_table()
 
         # Insert 100 entries
-        with self.pg_client.cursor as cursor:
+        with self.pg_client.get_cursor() as cursor:
             for _ in range(100):
                 insert_str = "INSERT INTO {} (username) VALUES (%s)".format(
                     self.TABLE_NAME)
@@ -54,7 +55,7 @@ class PostgresClientSystemTest(unittest.TestCase):
 
     def _create_table(self):
         # Init database with test data
-        with self.pg_client.cursor as cursor:
+        with self.pg_client.get_cursor() as cursor:
             cursor.execute(
                 "CREATE TABLE {} "
                 "(id SERIAL, username VARCHAR NOT NULL );".format(
@@ -62,7 +63,7 @@ class PostgresClientSystemTest(unittest.TestCase):
         print('Table {} has been created'.format(self.TABLE_NAME))
 
     def _drop_table(self):
-        with self.pg_client.cursor as cursor:
+        with self.pg_client.get_cursor() as cursor:
             cursor.execute('DROP TABLE {}'.format(self.TABLE_NAME))
         print('Table {} has been dropped'.format(self.TABLE_NAME))
 
@@ -76,13 +77,13 @@ class PostgresClientSystemTest(unittest.TestCase):
             self.assertIn('Wrong pool_size value', err)
 
     def test_cursor(self):
-        with self.pg_client.cursor as cursor:
+        with self.pg_client.get_cursor() as cursor:
             cursor.execute('SELECT * FROM users')
             result_set = cursor.fetchall()
         self.assertEqual(len(result_set), 100)
 
     def test_dict_cursor(self):
-        with self.pg_client.dict_cursor as cursor:
+        with self.pg_client.get_cursor() as cursor:
             cursor.execute('SELECT * FROM users')
         result_set = cursor.fetchall()
         item = result_set[0]
@@ -91,7 +92,8 @@ class PostgresClientSystemTest(unittest.TestCase):
         self.assertIn(item['username'], NAMES)
 
     def test_named_tuple_cursor(self):
-        with self.pg_client.nt_cursor as cursor:
+        with self.pg_client.get_cursor(
+                cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
             cursor.execute('SELECT * FROM users')
         result_set = cursor.fetchall()
         item = result_set[0]
@@ -99,7 +101,7 @@ class PostgresClientSystemTest(unittest.TestCase):
         self.assertIsInstance(item.username, str)
 
     def test_success_transaction(self):
-        with self.pg_client.cursor as transaction:
+        with self.pg_client.get_cursor() as transaction:
             insert_str = "INSERT INTO {} (username) VALUES (%s)".format(
                 self.TABLE_NAME)
             transaction.execute(insert_str, (random.choice(NAMES), ))
@@ -110,7 +112,7 @@ class PostgresClientSystemTest(unittest.TestCase):
     def test_rollback_transaction(self):
         # Inserting null username value must raise an error
         with self.assertRaises(pg_client_exc.IntegrityConstraintViolation):
-            with self.pg_client.cursor as transaction:
+            with self.pg_client.get_cursor() as transaction:
                 transaction.execute(
                     "INSERT INTO {} (username) VALUES (%s)".format(
                         self.TABLE_NAME),
@@ -126,7 +128,7 @@ class PostgresClientSystemTest(unittest.TestCase):
             connections.append(self.pg_client.acquire_conn())
 
         with self.assertRaises(PoolError) as err:
-            with self.pg_client.cursor as cursor:
+            with self.pg_client.get_cursor() as cursor:
                 self.assertIsNone(cursor)
                 self.assertIn('connection pool exhausted', err)
 
@@ -150,7 +152,7 @@ class PostgresClientSystemTest(unittest.TestCase):
 
         """
         for _ in range(10):
-            with self.pg_client.cursor as cursor:
+            with self.pg_client.get_cursor() as cursor:
                 time.sleep(0.5)
                 cursor.execute('SELECT * FROM users')
                 time.sleep(0.5)

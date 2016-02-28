@@ -34,7 +34,7 @@ Quick start
     # OR
     pg_client = PostgresClient(username='test', password='test', ...)
     
-    with self.pg_client.cursor as cursor:
+    with self.pg_client.get_cursor() as cursor:
         cursor.execute('SELECT * FROM MyTable')
         
     result_set = cursor.fetchall()
@@ -50,44 +50,40 @@ Database requests
     )
 
     
-**Basic cursor**
+**Cursor context manager**
 
 Result set index based access
 
-    with self.pg_client.cursor as cursor:
+    with self.pg_client.get_cursor() as cursor:
         cursor.execute('SELECT * FROM users')
 
     users = cursor.fetchall()
     username = users[0][0]  # (OR users[0][1])     
     
+**NOTE:** Default *cursor_factory* is `psycopg2.extras.RealDictCursor`
     
-**Dict cursor**
+To override default factory, there are two ways:
+
+* Override default one for client instance
+
+
+    pg_client = PostgresClient(..., cursor_factory=psycopg2.extras.NamedTupleCursor)
     
-    with self.pg_client.dict_cursor as cursor:
+    
+* Override for context
+
+
+    with pg_client.get_cursor(cursor_factory=MyCursor) as cursor:
         cursor.execute('SELECT * FROM users')
-
-    users = cursor.fetchall()
-    user = users[0]
-    print(user['name'])
         
-        
-**Named-tuple cursor**
 
-    with self.pg_client.nt_cursor as cursor:
-        cursor.execute('SELECT * FROM users')
-
-    users = cursor.fetchall()
-    user = users[0]
-    print(user.name)
-
-    
 Safe transactions
 -----------------
 
 All requests inside `with` context will be executed and automatically committed within one transaction 
 (or rolled back in case if database errors)
     
-    with self.pg_client.cursor as transaction:
+    with self.pg_client.get_cursor() as transaction:
         transaction.execute('INSERT INTO users VALUES name="Mark"')
         transaction.execute('INSERT INTO users VALUES name="Paolo"')
         transaction.execute('SELECT * FROM users')
@@ -99,7 +95,7 @@ Auto-reconnect connection pool
 ------------------------------
 Starting a new transaction, it guarantees that connection is alive
 
-    with self.pg_client.cursor as cursor:
+    with self.pg_client.get_cursor() as cursor:
         # connection is alive
         cursor.execute(...)
     
@@ -122,7 +118,7 @@ Example:
     from pgclient import exceptions as pg_exc
     
     try:
-        with self.pg_client.cursor as transaction:
+        with self.pg_client.get_cursor() as transaction:
             transaction.execute(...)
     except pg_exc.IntegrityConstraintViolation as err:
         logger.error(err.message, err.diag, err.pgcode)
@@ -132,7 +128,7 @@ Example:
 To catch all errors:
     
     try:
-        with self.pg_client.cursor as transaction:
+        with self.pg_client.get_cursor() as transaction:
             transaction.execute(...)
     except pg_exc.PgClientError as err:
         logger.error(err)
