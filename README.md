@@ -27,7 +27,7 @@ Quick start
 
 ### Initialize the client ###
 
-    from pgclient.client import PostgresClient
+    from pgclient import PostgresClient
     
     
     pg_client = PostgresClient(dsn='user=admin password=admin dbname=test host=localhost port=5432')
@@ -52,13 +52,11 @@ Database requests
     
 **Cursor context manager**
 
-Result set index based access
-
     with self.pg_client.get_cursor() as cursor:
         cursor.execute('SELECT * FROM users')
 
     users = cursor.fetchall()
-    username = users[0][0]  # (OR users[0][1])     
+    username = users[0]['username']     
     
 **NOTE:** Default *cursor_factory* is `psycopg2.extras.RealDictCursor`
     
@@ -66,15 +64,12 @@ To override default factory, there are two ways:
 
 * Override default one for client instance
 
-
-    pg_client = PostgresClient(..., cursor_factory=psycopg2.extras.NamedTupleCursor)
-    
+        pg_client = PostgresClient(..., cursor_factory=psycopg2.extras.NamedTupleCursor)
     
 * Override for context
 
-
-    with pg_client.get_cursor(cursor_factory=MyCursor) as cursor:
-        cursor.execute('SELECT * FROM users')
+        with pg_client.get_cursor(cursor_factory=MyCursor) as cursor:
+            cursor.execute('SELECT * FROM users')
         
 
 Safe transactions
