@@ -17,7 +17,8 @@ env:
 
 pypi_upload: clean
 # target: pypi_upload - Upload package to pypi.python.org
-	@$(PYTHON) setup.py sdist upload
+	@$(ENV_DIR)/bin/pip install wheel
+	@$(PYTHON) setup.py bdist_wheel upload -r pypi
 
 test: env
 	@$(NOSE) $(CODE_DIR)/tests.py
