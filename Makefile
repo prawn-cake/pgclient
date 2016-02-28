@@ -15,7 +15,7 @@ env:
 	@virtualenv $(ENV_DIR)
 	@$(ENV_DIR)/bin/pip install -r $(CURDIR)/requirements.txt
 
-pypi_upload:
+pypi_upload: clean
 # target: pypi_upload - Upload package to pypi.python.org
 	@$(PYTHON) setup.py sdist upload
 
@@ -32,7 +32,7 @@ clean:
 	@echo "Clean tmp folders and files" && rm -rf dist .coverage MANIFEST
 
 
-.PHONY: system_test test pypi_upload env help
+.PHONY: system_test test pypi_upload env help clean
 
 
 

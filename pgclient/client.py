@@ -48,7 +48,8 @@ class ReliableThreadConnectionPool(pgpool.ThreadedConnectionPool):
 
 class PostgresClient(object):
     def __init__(self, dsn=None, database=None, user=None, password=None,
-                 host=None, port=None, pool_size=1, auto_reconnect=True):
+                 host=None, port=None, pool_size=1, auto_reconnect=True,
+                 cursor_factory=None):
         self.dsn = dsn
 
         # Pass connection params as is
@@ -66,6 +67,7 @@ class PostgresClient(object):
             minconn=1, maxconn=pool_size, auto_reconnect=auto_reconnect,
             **conn_params)
         self.auto_reconnect = auto_reconnect
+        self._cursor_factory = cursor_factory or psycopg2.extras.RealDictCursor
 
     def acquire_conn(self):
         """Get new pool connection
@@ -109,14 +111,15 @@ class PostgresClient(object):
         return conn
 
     @contextmanager
-    def _get_cursor(self, cursor_factory=None):
+    def _get_cursor_ctx(self, cursor_factory=None):
         """Get connection cursor context manager
 
         :param cursor_factory: pg_extras.* cursor factory class
         """
         conn = self.acquire_conn()
         try:
-            yield conn.cursor(cursor_factory=cursor_factory)
+            yield conn.cursor(
+                cursor_factory=cursor_factory or self._cursor_factory)
             conn.commit()
         except psycopg2.DatabaseError as err:
             try:
@@ -128,25 +131,12 @@ class PostgresClient(object):
         finally:
             self.release_conn(conn)
 
-    @property
-    def cursor(self):
-        """Default index based cursor"""
+    def get_cursor(self, cursor_factory=None):
+        """Public cursor getter
 
-        return self._get_cursor()
-
-    @property
-    def dict_cursor(self):
-        """Return dict cursor. It enables to get fields access via column names
-        instead of indexes.
+        :param cursor_factory: psycopg2.extensions.cursor class
         """
-        return self._get_cursor(cursor_factory=pg_extras.DictCursor)
-
-    @property
-    def nt_cursor(self):
-        """Named tuple based cursor. It enables to get attributes access via
-        attributes.
-        """
-        return self._get_cursor(cursor_factory=pg_extras.NamedTupleCursor)
+        return self._get_cursor_ctx(cursor_factory=cursor_factory)
 
     @property
     def available_connections(self):
