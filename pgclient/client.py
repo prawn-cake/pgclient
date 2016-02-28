@@ -139,12 +139,6 @@ class PostgresClient(object):
         return self._get_cursor_ctx(cursor_factory=cursor_factory)
 
     @property
-    def cursor(self):
-        """Default index based cursor"""
-
-        return self._get_cursor_ctx()
-
-    @property
     def available_connections(self):
         """Connection pool available connections
 
